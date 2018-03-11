@@ -50,11 +50,14 @@ public abstract class JPanelTable extends JPanel implements JPanelView, BeanFact
     protected BrowsableEditableData bd;    
     protected DirtyManager dirty;    
     protected AppView app;
+	 private JSplitPane centerPanel;
     
     /** Creates new form JPanelTableEditor */
     public JPanelTable() {
 
         initComponents();
+		  centerPanel = new JSplitPane();
+		  container.add(centerPanel, BorderLayout.CENTER);
     }
     
     public void init(AppView app) throws BeanFactoryException {
@@ -87,8 +90,9 @@ public abstract class JPanelTable extends JPanel implements JPanelView, BeanFact
             // Add the editor
             c = getEditor().getComponent();
             if (c != null) {
-                c.applyComponentOrientation(getComponentOrientation());                
-                container.add(c, BorderLayout.CENTER);            
+                c.applyComponentOrientation(getComponentOrientation());
+//                container.add(c, BorderLayout.CENTER);            
+					centerPanel.setRightComponent(c);
             }
 
             // el panel este
@@ -97,7 +101,8 @@ public abstract class JPanelTable extends JPanel implements JPanelView, BeanFact
                 JListNavigator nl = new JListNavigator(bd);
                 nl.applyComponentOrientation(getComponentOrientation());
                 if (cr != null) nl.setCellRenderer(cr);
-                container.add(nl, java.awt.BorderLayout.LINE_START);
+//                container.add(nl, java.awt.BorderLayout.LINE_START);
+						centerPanel.setLeftComponent(nl);
             }
 
             // add toolbar extras

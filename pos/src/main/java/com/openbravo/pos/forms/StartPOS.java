@@ -71,7 +71,7 @@ public class StartPOS {
                 String slang = config.getProperty("user.language");
                 String scountry = config.getProperty("user.country");
                 String svariant = config.getProperty("user.variant");
-                if (slang != null && !slang.equals("") && scountry != null && svariant != null) {                                        
+                if (slang != null && !slang.equals("") && scountry != null && svariant != null) {
                     Locale.setDefault(new Locale(slang, scountry, svariant));
                 }
                 
