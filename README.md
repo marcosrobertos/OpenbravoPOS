@@ -1,2 +1,2 @@
-# OpenbravoPOS
-Point of Sale derived from Openbravo
+# AutotalPOS
+Point of Sale derived from Openbravo POS
