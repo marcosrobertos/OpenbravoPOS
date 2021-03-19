@@ -5,6 +5,12 @@
     <artifactId>autotal-pos</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <repositories>
+        <repository>
+            <id>jspresso</id>
+            <url>http://maven.icm.edu.pl/artifactory/repo/</url>
+        </repository>
+    </repositories>
     <modules>
         <module>beans</module>
         <module>data</module>
