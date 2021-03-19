@@ -69,6 +69,11 @@ public class JFrmSQL extends javax.swing.JFrame implements AppView {
         
         return true;
     }
+
+    @Override
+    public boolean openActiveCashIndex(boolean requiresUserConfirm) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
     private class MyFrameListener extends WindowAdapter{
         

@@ -92,4 +92,14 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/locales</directory>
+            </resource>
+            <resource>
+                <directory>src/main/reports</directory>
+            </resource>
+        </resources>
+    </build>
 </project>

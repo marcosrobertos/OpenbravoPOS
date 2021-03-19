@@ -44,6 +44,7 @@ public class JTicketsBagShared extends JTicketsBag {
         initComponents();
     }
     
+    @Override
     public void activate() {
         
         // precondicion es que no tenemos ticket activado ni ticket en el panel

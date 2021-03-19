@@ -50,14 +50,15 @@ public abstract class JPanelTable extends JPanel implements JPanelView, BeanFact
     protected BrowsableEditableData bd;    
     protected DirtyManager dirty;    
     protected AppView app;
-	 private JSplitPane centerPanel;
+    private JSplitPane centerPanel;
     
     /** Creates new form JPanelTableEditor */
     public JPanelTable() {
 
         initComponents();
-		  centerPanel = new JSplitPane();
-		  container.add(centerPanel, BorderLayout.CENTER);
+        centerPanel = new JSplitPane();
+        centerPanel.setLeftComponent(null);
+        container.add(centerPanel, BorderLayout.CENTER);
     }
     
     public void init(AppView app) throws BeanFactoryException {

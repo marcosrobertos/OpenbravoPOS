@@ -41,6 +41,7 @@ public interface AppView {
      
     public void setActiveCash(String value, int iSeq, Date dStart, Date dEnd);
     public String getActiveCashIndex();
+    public boolean openActiveCashIndex(boolean requiresUserConfirm);
     public int getActiveCashSequence();
     public Date getActiveCashDateStart();
     public Date getActiveCashDateEnd();

@@ -125,7 +125,13 @@ public class JPanelCloseMoney extends JPanel implements JPanelView, BeanFactoryA
         
         m_jTicketTable.setModel(new DefaultTableModel());
         m_jsalestable.setModel(new DefaultTableModel());
-            
+        
+        //Modify on 18-03-2021 by RLopez (roberto.lopez)
+        //If there is not a current active cash then do not load
+        if(m_App.getActiveCashIndex() == null || m_App.getActiveCashIndex().isEmpty()){
+            //if date end is not null the active cash was closed
+            return;
+        }
         // LoadData
         m_PaymentsToClose = PaymentsModel.loadInstance(m_App);
         
@@ -495,15 +501,19 @@ public class JPanelCloseMoney extends JPanel implements JPanelView, BeanFactoryA
                 MessageInf msg = new MessageInf(MessageInf.SGN_NOTICE, AppLocal.getIntString("message.cannotclosecash"), e);
                 msg.show(this);
             }
-            
-            try {
-                // Creamos una nueva caja          
-                m_App.setActiveCash(UUID.randomUUID().toString(), m_App.getActiveCashSequence() + 1, dNow, null);
+            /**
+             * Modify on 18-03-2021 by RLopez (marcos.roberto.lopez@gmail.com)
+             * At Latam the fiscal date requires the open and close as same day
+             * Then open cash when the first sales or first cash movement
+             */
+//            try {
+                //Disabled the activeCash setting null          
+                m_App.setActiveCash(null, 0, null, null);
                 
                 // creamos la caja activa      
-                m_dlSystem.execInsertCash(
-                        new Object[] {m_App.getActiveCashIndex(), m_App.getProperties().getHost(), m_App.getActiveCashSequence(), m_App.getActiveCashDateStart(), m_App.getActiveCashDateEnd()});                  
-               
+//                m_dlSystem.execInsertCash(
+//                        new Object[] {m_App.getActiveCashIndex(), m_App.getProperties().getHost(), m_App.getActiveCashSequence(), m_App.getActiveCashDateStart(), m_App.getActiveCashDateEnd()});                  
+//               
                 // ponemos la fecha de fin
                 m_PaymentsToClose.setDateEnd(dNow);
                 
@@ -512,10 +522,10 @@ public class JPanelCloseMoney extends JPanel implements JPanelView, BeanFactoryA
                 
                 // Mostramos el mensaje
                 JOptionPane.showMessageDialog(this, AppLocal.getIntString("message.closecashok"), AppLocal.getIntString("message.title"), JOptionPane.INFORMATION_MESSAGE);
-            } catch (BasicException e) {
-                MessageInf msg = new MessageInf(MessageInf.SGN_NOTICE, AppLocal.getIntString("message.cannotclosecash"), e);
-                msg.show(this);
-            }
+//            } catch (BasicException e) {
+//                MessageInf msg = new MessageInf(MessageInf.SGN_NOTICE, AppLocal.getIntString("message.cannotclosecash"), e);
+//                msg.show(this);
+//            }
             
             try {
                 loadData();

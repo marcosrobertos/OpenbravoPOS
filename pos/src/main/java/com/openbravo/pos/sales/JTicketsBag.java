@@ -48,7 +48,7 @@ public abstract class JTicketsBag extends JPanel {
     public static JTicketsBag createTicketsBag(String sName, AppView app, TicketsEditor panelticket) {
         
         if ("standard".equals(sName)) {
-            // return new JTicketsBagMulti(oApp, user, panelticket);
+//             return new JTicketsBagMulti(oApp, user, panelticket);
             return new JTicketsBagShared(app, panelticket);
         } else if ("restaurant".equals(sName)) {
             return new JTicketsBagRestaurantMap(app, panelticket);

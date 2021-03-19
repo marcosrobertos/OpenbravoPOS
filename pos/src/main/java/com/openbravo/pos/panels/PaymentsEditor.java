@@ -106,6 +106,9 @@ public class PaymentsEditor extends javax.swing.JPanel implements EditorRecord {
     }
     
     public Object createValue() throws BasicException {
+        if(m_App.getActiveCashIndex() == null){
+            m_App.openActiveCashIndex(true);
+        }
         Object[] payment = new Object[6];
         payment[0] = m_sId == null ? UUID.randomUUID().toString() : m_sId;
         payment[1] = m_App.getActiveCashIndex();

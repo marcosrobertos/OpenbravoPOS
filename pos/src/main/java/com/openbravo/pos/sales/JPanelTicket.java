@@ -62,6 +62,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 import javax.print.PrintService;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -76,6 +77,7 @@ import net.sf.jasperreports.engine.xml.JRXmlLoader;
  * @author adrianromero
  */
 public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFactoryApp, TicketsEditor {
+    private static Logger logger = Logger.getLogger("com.openbravo.pos.sales.JPanelTicket");
    
     // Variable numerica
     private final static int NUMBERZERO = 0;
@@ -183,6 +185,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         return this;
     }
 
+    @Override
     public void activate() throws BasicException {
 
         paymentdialogreceipt = JPaymentSelectReceipt.getDialog(this);
@@ -249,6 +252,9 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         if (m_oTicket != null) {            
             // Asign preeliminary properties to the receipt
             m_oTicket.setUser(m_App.getAppUserView().getUser().getUserInfo());
+            if(m_App.getActiveCashIndex() == null || m_App.getActiveCashIndex().isEmpty()){
+                m_App.openActiveCashIndex(true);
+            }
             m_oTicket.setActiveCash(m_App.getActiveCashIndex());
             m_oTicket.setDate(new Date()); // Set the edition date.
         }
@@ -888,6 +894,10 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
 
                         // Asigno los valores definitivos del ticket...
                         ticket.setUser(m_App.getAppUserView().getUser().getUserInfo()); // El usuario que lo cobra
+                        if(m_App.getActiveCashIndex() == null || m_App.getActiveCashIndex().isEmpty()){
+                            
+                            m_App.openActiveCashIndex(false);
+                        }
                         ticket.setActiveCash(m_App.getActiveCashIndex());
                         ticket.setDate(new Date()); // Le pongo la fecha de cobro
 

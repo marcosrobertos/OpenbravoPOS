@@ -40,11 +40,14 @@ import com.openbravo.data.gui.JMessageDialog;
 import com.openbravo.data.loader.BatchSentence;
 import com.openbravo.data.loader.BatchSentenceResource;
 import com.openbravo.data.loader.Session;
+import com.openbravo.format.Formats;
 import com.openbravo.pos.scale.DeviceScale;
 import com.openbravo.pos.scanpal2.DeviceScanner;
 import com.openbravo.pos.scanpal2.DeviceScannerFactory;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
 /**
@@ -52,6 +55,7 @@ import java.util.regex.Matcher;
  * @author adrianromero
  */
 public class JRootApp extends JPanel implements AppView {
+    private static Logger logger = Logger.getLogger("com.openbravo.pos.forms.JRootApp");
  
     private AppProperties m_props;
     private Session session;     
@@ -158,29 +162,46 @@ public class JRootApp extends JPanel implements AppView {
         // Cargamos las propiedades de base de datos
         m_propsdb = m_dlSystem.getResourceAsProperties(m_props.getHost() + "/properties");
         
-        // creamos la caja activa si esta no existe      
-        try {
-            String sActiveCashIndex = m_propsdb.getProperty("activecash");
-            Object[] valcash = sActiveCashIndex == null
-                    ? null
-                    : m_dlSystem.findActiveCash(sActiveCashIndex);
-            if (valcash == null || !m_props.getHost().equals(valcash[0])) {
-                // no la encuentro o no es de mi host por tanto creo una...
-                setActiveCash(UUID.randomUUID().toString(), m_dlSystem.getSequenceCash(m_props.getHost()) + 1, new Date(), null);
-
-                // creamos la caja activa      
-                m_dlSystem.execInsertCash(
-                        new Object[] {getActiveCashIndex(), m_props.getHost(), getActiveCashSequence(), getActiveCashDateStart(), getActiveCashDateEnd()});                  
-            } else {
-                setActiveCash(sActiveCashIndex, (Integer) valcash[1], (Date) valcash[2], (Date) valcash[3]);
-            }
-        } catch (BasicException e) {
-            // Casco. Sin caja no hay pos
-            MessageInf msg = new MessageInf(MessageInf.SGN_NOTICE, AppLocal.getIntString("message.cannotclosecash"), e);
-            msg.show(this);
-            session.close();
-            return false;
-        }  
+        /**
+         * Modify by RLopez
+         * TODO: Add validations for test that exist only one closedcash with dateend
+         * null and this will be the last host sequence
+         * 
+         * Show a message to user if cash is inconsistent
+         * 
+         * Move the open active cash. Open when performs the first sale or the 
+         * first cash movement.
+         */
+//        // creamos la caja activa si esta no existe      
+//        try {
+//            String sActiveCashIndex = m_propsdb.getProperty("activecash");
+//            Object[] valcash = sActiveCashIndex == null
+//                    ? null
+//                    : m_dlSystem.findActiveCash(sActiveCashIndex);
+//            if (valcash == null || !m_props.getHost().equals(valcash[0])) {
+//                int res = JOptionPane.showConfirmDialog(
+//                        this, "<html>La Caja no se encuentra abierta."
+//                        + "Para realizar una venta o realizar un movimiento de efectivo es necesario abrir la Caja."
+//                        + "¿Abrir la caja con fecha contable:" + Formats.DATE.formatValue(new Date()) + "?",
+//                        AppLocal.getIntString("message.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+//                if (res == JOptionPane.YES_OPTION) {
+//                    // no la encuentro o no es de mi host por tanto creo una...
+//                    setActiveCash(UUID.randomUUID().toString(), m_dlSystem.getSequenceCash(m_props.getHost()) + 1, new Date(), null);
+//
+//                    // creamos la caja activa      
+//                    m_dlSystem.execInsertCash(
+//                            new Object[]{getActiveCashIndex(), m_props.getHost(), getActiveCashSequence(), getActiveCashDateStart(), getActiveCashDateEnd()});
+//                }
+//            } else {
+//                setActiveCash(sActiveCashIndex, (Integer) valcash[1], (Date) valcash[2], (Date) valcash[3]);
+//            }
+//        } catch (BasicException e) {
+//            // Casco. Sin caja no hay pos
+//            MessageInf msg = new MessageInf(MessageInf.SGN_NOTICE, AppLocal.getIntString("message.cannotclosecash"), e);
+//            msg.show(this);
+//            session.close();
+//            return false;
+//        }
         
         // Leo la localizacion de la caja (Almacen).
         m_sInventoryLocation = m_propsdb.getProperty("location");
@@ -227,6 +248,46 @@ public class JRootApp extends JPanel implements AppView {
         showLogin();
 
         return true;
+    }
+    
+    @Override
+    public boolean openActiveCashIndex(boolean requiresUserConfirm) {
+        logger.log(Level.INFO, "openActiveCashIndex(requiresUserConfirm:{0})", requiresUserConfirm);
+        
+        // creamos la caja activa si esta no existe      
+        try {
+            String sActiveCashIndex = m_propsdb.getProperty("activecash");
+            Object[] valcash = sActiveCashIndex == null
+                    ? null
+                    : m_dlSystem.findActiveCash(sActiveCashIndex);
+            if (valcash == null || !m_props.getHost().equals(valcash[0])) {
+                int res = JOptionPane.YES_OPTION;
+                if (requiresUserConfirm) {
+                    res = JOptionPane.showConfirmDialog(
+                            this, "<html>La Caja no se encuentra abierta."
+                            + "<br>Para realizar una venta o un movimiento de efectivo es necesario abrir la Caja."
+                            + "<br>¿ Abrir la caja con fecha contable: " + Formats.DATE.formatValue(new Date()) + " ?",
+                            AppLocal.getIntString("message.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                }
+                if (res == JOptionPane.YES_OPTION) {
+                    // no la encuentro o no es de mi host por tanto creo una...
+                    setActiveCash(UUID.randomUUID().toString(), m_dlSystem.getSequenceCash(m_props.getHost()) + 1, new Date(), null);
+
+                    // creamos la caja activa      
+                    m_dlSystem.execInsertCash(
+                            new Object[]{getActiveCashIndex(), m_props.getHost(), getActiveCashSequence(), getActiveCashDateStart(), getActiveCashDateEnd()});
+                }
+            } else {
+                setActiveCash(sActiveCashIndex, (Integer) valcash[1], (Date) valcash[2], (Date) valcash[3]);
+            }
+            return true;
+        } catch (BasicException e) {
+            // Casco. Sin caja no hay pos
+            MessageInf msg = new MessageInf(MessageInf.SGN_NOTICE, AppLocal.getIntString("message.cannotclosecash"), e);
+            msg.show(this);
+            session.close();
+            return false;
+        }
     }
     
     private String readDataBaseVersion() {
@@ -290,7 +351,7 @@ public class JRootApp extends JPanel implements AppView {
         m_dActiveCashDateStart = dStart;
         m_dActiveCashDateEnd = dEnd;
         
-        m_propsdb.setProperty("activecash", m_sActiveCashIndex);
+        m_propsdb.setProperty("activecash", m_sActiveCashIndex == null ? "" : m_sActiveCashIndex);
         m_dlSystem.setResourceAsProperties(m_props.getHost() + "/properties", m_propsdb);
     }   
        
