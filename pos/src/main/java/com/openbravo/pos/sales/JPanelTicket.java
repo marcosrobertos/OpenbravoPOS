@@ -522,6 +522,25 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
         }
     }
     
+    private void incProductByCodeWeight(String sCode, double dWeight) {
+        // precondicion: sCode != null
+
+        try {
+            ProductInfoExt oProduct = dlSales.getProductInfoByCode(sCode);
+            if (oProduct == null) {
+                Toolkit.getDefaultToolkit().beep();
+                new MessageInf(MessageInf.SGN_WARNING, AppLocal.getIntString("message.noproduct")).show(this);
+                stateToZero();
+            } else {
+                // Se anade directamente una unidad con el precio y todo
+                addTicketLine(oProduct, dWeight, oProduct.getPriceSell());
+            }
+        } catch (BasicException eData) {
+            stateToZero();
+            new MessageInf(eData).show(this);
+        }
+    }
+    
     private void incProduct(ProductInfoExt prod) {
         
         if (prod.isScale() && m_App.getDeviceScale().existsScale()) {
@@ -592,7 +611,7 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
                     addTicketLine(oProduct, 1.0, includeTaxes(oProduct.getTaxCategoryID(), oProduct.getPriceSell()));
                 } else if (sCode.length() == 13 && sCode.startsWith("210")) {
                     // barcode of a weigth product
-                    incProductByCodePrice(sCode.substring(0, 7), Double.parseDouble(sCode.substring(7, 12)) / 100);
+                    incProductByCodeWeight(sCode.substring(0, 7), Double.parseDouble(sCode.substring(7, 12)) / 1000);
                 } else {
                     incProductByCode(sCode);
                 }

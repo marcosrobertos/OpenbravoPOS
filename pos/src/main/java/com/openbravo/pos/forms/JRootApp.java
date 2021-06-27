@@ -334,6 +334,20 @@ public class JRootApp extends JPanel implements AppView {
         return m_sInventoryLocation;
     }   
     public String getActiveCashIndex() {
+        if(m_sActiveCashIndex == null){
+            try {
+                String sActiveCashIndex = m_propsdb.getProperty("activecash");
+                Object[] valcash = sActiveCashIndex == null
+                        ? null
+                        : m_dlSystem.findActiveCash(sActiveCashIndex);
+                if (valcash == null || !m_props.getHost().equals(valcash[0])) {
+                    return null;
+                }
+                setActiveCash(sActiveCashIndex, (Integer) valcash[1], (Date) valcash[2], (Date) valcash[3]);
+            } catch (BasicException be) {
+                logger.log(Level.SEVERE, be.getMessage());
+            }
+        }
         return m_sActiveCashIndex;
     }
     public int getActiveCashSequence() {
